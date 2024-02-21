@@ -6,42 +6,50 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     public function registrasi(Request $request)
     {
 
-        $validatedData = $request->validate([
-            'name' => 'required',
-            'username' => 'required|unique:users,username',
-            'password' => 'required',
-            'email' => 'required|unique:users,email'
-        ], [
-            'name.required' => 'Nama pengguna harus diisi',
-            'username.required' => 'Username pengguna harus diisi.',
-            'username.unique' => 'Username pengguna sudah digunakan.',
-            'password.required' => 'Kata sandi harus diisi.',
-            'email.required' => 'Alamat email harus diisi.',
-            'email.email' => 'Alamat email harus valid.',
-            'email.unique' => 'Alamat email sudah digunakan.',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'name' => 'required',
+                'username' => 'required|unique:users,username',
+                'password' => 'required',
+                'email' => 'required|unique:users,email|email'
+            ], [
+                'name.required' => 'Nama pengguna harus diisi',
+                'username.required' => 'Username pengguna harus diisi.',
+                'username.unique' => 'Username pengguna sudah digunakan.',
+                'password.required' => 'Kata sandi harus diisi.',
+                'email.required' => 'Alamat email harus diisi.',
+                'email.email' => 'Alamat email harus valid.',
+                'email.unique' => 'Alamat email sudah digunakan.',
+            ]);
 
+            $user = new User();
+            $user->name = $validatedData['name'];
+            $user->username = $validatedData['username'];
+            $user->password = bcrypt($validatedData['password']);
+            $user->slug = $validatedData['username'] . time();
+            $user->email = $validatedData['email'];
+            $user->role = 'pengguna';
+            $user->save();
 
-        $user = new User();
-        $user->name = $validatedData['name'];
-        $user->username = $validatedData['username'];
-        $user->password = bcrypt($validatedData['password']);
-        $user->slug = $validatedData['username'] . time();
-        $user->email = $validatedData['email'];
-        $user->role = 'pengguna';
-        $user->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Pengguna berhasil didaftarkan',
-            'user' => $user
-        ], 201);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pengguna berhasil didaftarkan',
+                'user' => $user
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal mendaftarkan pengguna',
+                'errors' => $e->errors()
+            ], 422);
+        }
     }
 
     public function login(Request $request)

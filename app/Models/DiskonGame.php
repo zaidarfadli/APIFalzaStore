@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class DiskonGame extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'percent',
+        'game_item_id',
+        'status'
+    ];
 }

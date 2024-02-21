@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('game_item_id');
             $table->foreign('game_item_id')->references('id')->on('game_items');
+            
             $table->integer('percent');
             $table->timestamps();
         });

@@ -18,7 +18,8 @@ class ItemController extends Controller
         $gameItem = $game->gameItems()->get();
 
         return response()->json([
-            'game_item' => $gameItem
+            'game_item' => $gameItem,
+            'game' => $game
         ]);
     }
 

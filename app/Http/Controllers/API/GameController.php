@@ -21,8 +21,7 @@ class GameController extends Controller
 
     public function storeGame(StoreGameRequest $request)
     {
-        $validatedData = $request->validate();
-
+        $validatedData = $request->validated();
         $validatedData['slug'] = $validatedData['name'] . time();
 
         $game = Game::create($validatedData);
